@@ -1,3 +1,6 @@
+# github repository actions 페이지에 나타날 이름
+name: CI/CD using github actions & docker
+
 on:
   push:
     branches: [ "main" ]  # 혹은 "EC2"
