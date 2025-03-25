@@ -1,0 +1,27 @@
+on:
+  push:
+    branches: [ "main" ]  # 혹은 "EC2"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Deploy files to EC2
+        run: |
+          scp -r -o StrictHostKeyChecking=no ./ ubuntu@${{ secrets.HOST }}:/home/ubuntu/jobgem_back
+
+      - name: SSH into EC2 and restart Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.HOST }} << 'EOF'
+            cd /home/ubuntu/jobgem_back
+            docker-compose down
+            docker-compose up -d --build
+          EOF
